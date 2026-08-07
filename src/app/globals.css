@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Light-dominant site: white / #f5f5f6 surfaces carry the page. */
+    background-color: #f5f5f6;
+  }
+
+  body {
+    @apply bg-surface-soft text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-teal-700 text-paper;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-teal-600 ring-offset-2 ring-offset-surface;
+  }
+}
+
+@layer utilities {
+  .balance {
+    text-wrap: balance;
+  }
+
+  /* Needs the -webkit- prefix too — without it Chrome ignores the mask and
+     the marquee runs straight into the labels either side of it. */
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 64px,
+      black calc(100% - 64px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 64px,
+      black calc(100% - 64px),
+      transparent 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
