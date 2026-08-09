@@ -26,7 +26,9 @@ import { cn } from "@/lib/utils";
 // blurred bar.
 //
 // Interior pages open on white and the C.A.S.H. lettering is white-on-dark,
-// so there the bar is always solid — a transparent one would be invisible.
+// so there the bar is always solid dark — never the transparent blend, even
+// before the scroll threshold — otherwise it reads as a washed-out grey bar
+// over the white page background.
 //
 // C.A.S.H. lettering lives in CashNavLabel; see RULES.md.
 
@@ -57,11 +59,9 @@ export function Header() {
       <header
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-all duration-700 ease-premium",
-          scrolled
-            ? "border-b border-white/10 bg-ink/95 shadow-nav backdrop-blur-xl backdrop-saturate-150"
-            : blendsIntoHero
-              ? "border-b border-transparent bg-transparent"
-              : "border-b border-white/5 bg-ink/85 backdrop-blur-xl backdrop-saturate-150",
+          blendsIntoHero
+            ? "border-b border-transparent bg-transparent"
+            : "border-b border-white/10 bg-ink/95 shadow-nav backdrop-blur-xl backdrop-saturate-150",
         )}
       >
         <Container

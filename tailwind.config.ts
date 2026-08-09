@@ -58,7 +58,7 @@ const config: Config = {
         },
       },
       animation: {
-        marquee: "marquee 38s linear infinite",
+        marquee: "marquee 70s linear infinite",
       },
       boxShadow: {
         soft: "0 24px 60px -28px rgba(0, 0, 0, 0.22)",

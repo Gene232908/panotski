@@ -25,15 +25,13 @@ export function Footer() {
       <Container className="grid gap-12 py-16 md:grid-cols-[1.5fr_1fr_1fr]">
         <div className="flex flex-col gap-5">
           <Link href="/" className="flex items-center gap-3">
-            <span className="inline-flex items-center justify-center rounded-xl bg-ink p-2">
-              <Image
-                src="/logo.svg"
-                alt={`${brand.name} logo`}
-                width={40}
-                height={23}
-                className="h-7 w-auto"
-              />
-            </span>
+            <Image
+              src="/logo.svg"
+              alt={`${brand.name} logo`}
+              width={40}
+              height={23}
+              className="h-7 w-auto"
+            />
             <span className="flex flex-col leading-none">
               <span className="text-[15px] font-bold tracking-tight">
                 {brand.name}

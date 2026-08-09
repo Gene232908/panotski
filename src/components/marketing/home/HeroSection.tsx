@@ -10,11 +10,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { ArrowRight, ChevronRight } from "lucide-react";
-import {
-  HeroBackdrop,
-  HeroImage,
-  HeroScrims,
-} from "@/components/marketing/home/HeroBackdrop";
+import { HeroBackdrop } from "@/components/marketing/home/HeroBackdrop";
 import { HeroHeadline } from "@/components/marketing/home/HeroHeadline";
 import { HeroMetaBar } from "@/components/marketing/home/HeroMetaBar";
 import { heroContent } from "@/content/home";
@@ -27,9 +23,9 @@ import { brand } from "@/content/site";
 // depth. Pointer-drift parallax was removed — it needs an overscanned
 // image, which crops the sides of this photograph.
 //
-// Layout: desktop overlays the copy on a full-bleed photograph; mobile
-// stacks an uncropped 16:9 band above the copy, so the whole photo is
-// always visible rather than being cropped to a portrait viewport.
+// Layout: desktop overlays the copy on a full-bleed photograph. Mobile
+// drops the photo entirely and shows text only over the dark base fill,
+// since there's no room to show it uncropped on a portrait viewport.
 //
 // Deliberately absent (see RULES.md § 5a): orbs, glass cards, device
 // mockups, grid overlays, shimmer sweeps, floating stat chips.
@@ -61,26 +57,12 @@ export function HeroSection() {
       // exceeds the viewport. On a 1440×900 screen that means an 810px hero
       // showing the complete frame, rather than a 900px one that crops the
       // CREServices screen off the right edge.
-      className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden bg-[#07100d] text-paper lg:h-[min(100svh,56.25vw)] lg:min-h-[600px]"
+      className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden bg-[#07100d] text-paper lg:h-[min(100svh,56.25vw)] lg:min-h-[600px] lg:justify-end"
     >
       {/* Desktop: full-bleed photograph behind the copy. */}
       <div className="hidden lg:block">
         <HeroBackdrop scale={shouldReduceMotion ? staticScale : bgScale} />
       </div>
-
-      {/* Mobile / tablet: the photo gets its own uncropped 16:9 band so the
-          presenter and the CREServices screen are both fully visible. */}
-      <motion.div
-        initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 1.04 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, ease: EASE }}
-        className="relative mt-20 w-full lg:hidden"
-      >
-        <div className="relative aspect-[16/9] w-full overflow-hidden">
-          <HeroImage priority />
-          <HeroScrims />
-        </div>
-      </motion.div>
 
       <motion.div
         style={

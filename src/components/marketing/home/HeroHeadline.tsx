@@ -6,8 +6,7 @@ import { cn } from "@/lib/utils";
 
 // Editorial two-line headline. Each line sits in its own clipping mask and
 // rises from beneath it — the mask is what makes the entrance read as a
-// title card rather than a fade. Line two is indented to break the
-// left-aligned block and give the composition tension.
+// title card rather than a fade. Both lines are flush left.
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -21,14 +20,7 @@ export function HeroHeadline() {
       className="mt-6 text-[clamp(2.6rem,7.4vw,6.5rem)] font-semibold leading-[0.98] tracking-[-0.035em] text-paper"
     >
       {headlineLines.map((line, index) => (
-        <span
-          key={line}
-          className={cn(
-            "block overflow-hidden pb-[0.08em]",
-            // Indent the second line — asymmetry is the whole point.
-            index === 1 && "pl-[8%] sm:pl-[14%] lg:pl-[18%]",
-          )}
-        >
+        <span key={line} className="block overflow-hidden pb-[0.08em]">
           <motion.span
             className="block"
             initial={{

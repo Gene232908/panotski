@@ -13,12 +13,16 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      {/* Core Statement opens the page directly, mirroring the live site. */}
-      <div className="pt-20 sm:pt-24" />
+      {/* Core Statement opens the page directly, mirroring the live site.
+          Section's own top padding (py-24 sm:py-32) clears the fixed
+          header on its own; this spacer just tops it up by the same
+          32px PageHero adds on the other interior pages (pt-32 sm:pt-40
+          vs Section's py-24 sm:py-32), so the opening gap matches. */}
+      <div className="pt-8" />
       <CoreStatementSection />
       <WhyCresSection />
       <OurApproachSection />
-      <CtaBand />
+      <CtaBand tone="white" />
     </>
   );
 }

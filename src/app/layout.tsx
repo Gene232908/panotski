@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   description:
     "CREServices is a strategic and structured service consultancy provider specializing in one core mission: turning ideas into opportunities.",
   icons: {
-    icon: "/logo.svg",
+    icon: "/white.png",
   },
   metadataBase: new URL("https://cresvcs.com"),
 };
