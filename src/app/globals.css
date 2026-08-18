@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Light-dominant site: white / #f5f5f6 surfaces carry the page. */
+    background-color: #f5f5f6;
+  }
+
+  body {
+    @apply bg-surface-soft text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-teal-700 text-paper;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-teal-600 ring-offset-2 ring-offset-surface;
+  }
+}
+
+@layer utilities {
+  .balance {
+    text-wrap: balance;
+  }
+
+  /* Needs the -webkit- prefix too — without it Chrome ignores the mask and
+     the marquee runs straight into the labels either side of it. */
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 64px,
+      black calc(100% - 64px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 64px,
+      black calc(100% - 64px),
+      transparent 100%
+    );
+  }
+}
+
+/* Creative Arts gallery entrance. Switched off by the prefers-reduced-motion
+   block below, which leaves the modal visible — just without the fade.
+   (The road-dash and brand-orbit keyframes were removed along with the
+   contact roadmap visual.) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Dark-band form fields (Contact). Chrome repaints an autofilled input with
+   its own near-white background and ignores `background-color`, which would
+   drop a white box into the middle of the dark form the instant the browser
+   fills in a name or an email. The inset shadow is the standard way to push
+   that fill back; the 9999s transition stops the flash on the frame before it
+   applies. `-webkit-text-fill-color` is needed too — `color` alone is ignored
+   on an autofilled field. */
+.field-dark:-webkit-autofill,
+.field-dark:-webkit-autofill:hover,
+.field-dark:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f5f5f6;
+  -webkit-box-shadow: 0 0 0 1000px #0c0c0c inset;
+  caret-color: #f5f5f6;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ── Reveal ────────────────────────────────────────────────────────────────
+   The resting and revealed states for <Reveal>. Deliberately CSS: the page
+   can mount thirty of these and running each one through a JavaScript
+   animation loop is what made scrolling stutter. Here the browser owns the
+   transition, and the only script involved is a one-shot
+   IntersectionObserver that adds `.reveal-in`.
+
+   The custom properties are set per instance from the component's props, so
+   distance, delay, scale and blur stay configurable exactly as before. */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-y, 26px), 0) scale(var(--reveal-scale, 1));
+  filter: blur(var(--reveal-blur, 8px));
+  transition:
+    opacity 1.05s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0s),
+    transform 1.05s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0s),
+    /* Sharpen ahead of the movement finishing — legibility first. */
+    filter 0.7s ease-out var(--reveal-delay, 0s);
+}
+
+.reveal-in {
+  opacity: 1;
+  transform: none;
+  /* `none`, not `blur(0px)`: a filter of any value makes the element the
+     containing block for fixed-position descendants. Ending at `none` leaves
+     the revealed element completely out of the way. */
+  filter: none;
+}
+
+/* ── Page entry ───────────────────────────────────────────────────────────
+   Runs once per navigation, on one element. NO fill mode — see
+   PageTransition.tsx for why that matters to the modal. */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+.page-enter {
+  animation: pageEnter 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The global collapse above zeroes durations; these two also need their
+     resting state moved to "visible", or the content would sit at opacity 0
+     waiting for a transition that no longer runs. */
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .page-enter {
+    animation: none;
+  }
+}
