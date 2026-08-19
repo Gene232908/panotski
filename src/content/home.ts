@@ -73,3 +73,123 @@ export const homeCtaContent = {
 
   cta: { label: "GET STARTED", href: "/contact" },
 } as const;
+
+// ─────────────────────────────────────────────────────────────────────────
+// TESTIMONIALS — PLACEHOLDER COPY, NOT CLIENT-APPROVED.
+//
+// RULES.md §3 requires every user-facing sentence to come verbatim from
+// cresvcs.com. The live site carries no testimonials, so there is nothing to
+// copy: the quotes, names and roles below are stand-ins that exist so the
+// section can be designed and reviewed at full length. They are written to
+// the shape of a real reference — one engagement, one outcome — but no client
+// has said them.
+//
+// BEFORE LAUNCH: replace every entry with quotes the client has collected and
+// approved, and delete this notice. If approved quotes are not available in
+// time, remove <TestimonialsSection /> from the home page rather than shipping
+// invented references.
+//
+// Photos follow the same rule as the rest of the site (RULES.md §5): each
+// entry renders an <ImagePlaceholder> naming the portrait it is waiting for.
+// To swap in a real headshot, drop the file in `public/` and set `image`
+// (plus `imageAlt`) — no component edit needed.
+// ─────────────────────────────────────────────────────────────────────────
+
+export type Testimonial = {
+  quote: string;
+  name: string;
+  /** Role and organisation, rendered as one supporting line. */
+  title: string;
+  /** The engagement this reference speaks to — shown as a small tag. */
+  engagement: string;
+  /** Set to a path in `public/` to replace the placeholder slot. */
+  image: string | null;
+  imageAlt: string;
+  imageHint: string;
+  /**
+   * Client mark shown in the portrait frame at rest; the portrait itself is
+   * revealed on hover / focus. Leave `null` and the frame simply shows the
+   * photo — see PortraitReveal.
+   */
+  logo: string | null;
+  logoAlt: string;
+  /**
+   * Whether this person has a video testimonial at all. It is what shows or
+   * hides the "Watch video testimonial" control, and it is deliberately
+   * separate from `video` below: a clip that is promised but not yet
+   * delivered still needs the control (so the placeholder can be reviewed),
+   * while a quote that will never have one must not offer it.
+   */
+  hasVideo: boolean;
+  /**
+   * The clip itself. `null` renders the player placeholder; set it to a path
+   * in `public/` (e.g. "/testimonials/name.mp4") and the same slot becomes a
+   * real <video> with native controls — no component edit.
+   */
+  video: string | null;
+  /** Poster frame for the clip. */
+  videoPoster: string | null;
+  videoHint: string;
+};
+
+export const testimonialsContent = {
+  eyebrow: "CLIENT VOICES",
+  heading: "The proof is in the rollout.",
+  headingAccent: ["rollout."],
+  testimonials: [
+    {
+      quote:
+        "We had the strategy on paper for two years. CREServices was the first partner that got it into the branches — same standard in every location, and a way to keep it there after they left.",
+      name: "Placeholder Name",
+      title: "Operations Director, Client Organisation",
+      engagement: "Operational Rollout",
+      image: "/zero60.jpg",
+      imageAlt: "Client portrait — Zero-Sixty-Three Productions",
+      imageHint: "Client portrait — operations lead, CREServices engagement",
+      logo: "/logozero60.jpg",
+      logoAlt: "Zero-Sixty-Three Productions logo",
+      hasVideo: true,
+      video: null,
+      videoPoster: null,
+      videoHint: "Video testimonial — operations lead on the branch rollout",
+    },
+    {
+      quote:
+        "What set them apart was the discipline. Milestones were met, the handover was documented, and our own team could run the process without us calling anyone back in.",
+      name: "Placeholder Name",
+      title: "General Manager, Client Organisation",
+      engagement: "Process Rebuild",
+      image: null,
+      imageAlt: "",
+      imageHint: "Client portrait — general manager, CREServices engagement",
+      logo: null,
+      logoAlt: "",
+      hasVideo: true,
+      video: null,
+      videoPoster: null,
+      videoHint: "Video testimonial — general manager on the process rebuild",
+    },
+    {
+      quote:
+        "They rebuilt the workflow around how the team actually works instead of how the manual said it should. Turnaround times dropped in the first quarter and have held since.",
+      name: "Placeholder Name",
+      title: "Head of Service Delivery, Client Organisation",
+      engagement: "Service Improvement",
+      image: null,
+      imageAlt: "",
+      imageHint: "Client portrait — service delivery lead, CREServices engagement",
+      logo: null,
+      logoAlt: "",
+      hasVideo: true,
+      video: null,
+      videoPoster: null,
+      videoHint: "Video testimonial — service delivery lead on turnaround times",
+    },
+  ] satisfies readonly Testimonial[],
+
+  // Labels for the video swap. The control is hidden entirely on any entry
+  // whose `video` slot is not wired up yet — see TestimonialCarousel.
+  watchVideoLabel: "Watch video testimonial",
+  backToQuoteLabel: "Back to the quote",
+  closeVideoLabel: "Close video and return to the quote",
+} as const;
