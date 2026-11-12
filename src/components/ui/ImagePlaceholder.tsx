@@ -11,11 +11,14 @@ type ImagePlaceholderProps = {
   hint: string;
   className?: string;
   tone?: "light" | "dark";
-  ratio?: "portrait" | "landscape" | "square" | "wide" | "fill";
+  ratio?: "portrait" | "portraitDesktop" | "landscape" | "square" | "wide" | "fill";
 };
 
 const ratioClasses: Record<NonNullable<ImagePlaceholderProps["ratio"]>, string> = {
   portrait: "aspect-[3/4]",
+  // Landscape on phones, portrait beside the copy from `lg`. A 3:4 slot
+  // stacked above the text cost ~460px of a phone screen before a word of it.
+  portraitDesktop: "aspect-[4/3] lg:aspect-[3/4]",
   landscape: "aspect-[4/3]",
   square: "aspect-square",
   wide: "aspect-[16/9]",

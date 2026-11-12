@@ -18,8 +18,10 @@ export function Footer() {
 
   return (
     <footer className="border-t border-ink/10 bg-surface-soft text-ink">
-      <Container className="grid gap-12 py-16 md:grid-cols-[1.5fr_1fr_1fr]">
-        <div className="flex flex-col gap-5">
+      {/* Phones: the brand block spans the row, and Navigate / Legal sit side
+          by side beneath it instead of stacking into a long column. */}
+      <Container className="grid grid-cols-2 gap-x-8 gap-y-10 py-12 sm:py-16 md:grid-cols-[1.5fr_1fr_1fr] md:gap-12">
+        <div className="col-span-2 flex flex-col gap-5 md:col-span-1">
           <Link href="/" className="flex items-center gap-3">
             <Image
               src="/logo.svg"

@@ -10,11 +10,11 @@ export function WhoWeAreSection() {
   return (
     <Section tone="white">
       <Container>
-        <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+        <div className="grid gap-10 sm:gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
           <Reveal scale>
             <ImagePlaceholder
               hint={whoWeAreContent.imageHint}
-              ratio="portrait"
+              ratio="portraitDesktop"
               className="lg:sticky lg:top-28"
             />
           </Reveal>

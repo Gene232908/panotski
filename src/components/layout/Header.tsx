@@ -3,14 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { Menu } from "lucide-react";
 import { brand, primaryCta } from "@/content/site";
 import { Container } from "@/components/ui/Container";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { NavItems } from "@/components/layout/NavItems";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { MenuToggle } from "@/components/layout/MenuToggle";
+
+const MOBILE_NAV_ID = "mobile-nav";
 import { cn } from "@/lib/utils";
 
 // Standard top bar: 80px, tightening to 68px on scroll.
@@ -73,8 +75,19 @@ export function Header() {
     };
   }, []);
 
-  // Only the home hero is a dark photograph the bar can dissolve into.
-  const blendsIntoHero = pathname === "/" && !scrolled;
+  // Any navigation closes the menu — including back/forward, which never
+  // passes through a link's onClick.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  const closeMenu = useCallback(() => setMobileOpen(false), []);
+
+  // Only the home hero is a dark photograph the bar can dissolve into. While
+  // the mobile menu is open the bar also goes clear: the overlay underneath
+  // is already the dark ground, and a second tinted bar on top of it would
+  // read as a seam across the menu.
+  const blendsIntoHero = (pathname === "/" && !scrolled) || mobileOpen;
 
   return (
     <>
@@ -95,6 +108,7 @@ export function Header() {
           <Link
             href="/"
             aria-label={`${brand.name} home`}
+            onClick={closeMenu}
             className="flex items-center gap-3"
           >
             <Image
@@ -131,27 +145,29 @@ export function Header() {
               {primaryCta.label}
             </Link>
 
-            <button
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              className="inline-flex items-center justify-center rounded-full border border-white/15 p-2 text-paper transition-colors duration-200 hover:bg-white/10 lg:hidden"
-              aria-label="Open menu"
-            >
-              <Menu className="h-[18px] w-[18px]" aria-hidden />
-            </button>
+            <MenuToggle
+              open={mobileOpen}
+              onToggle={() => setMobileOpen((current) => !current)}
+              controls={MOBILE_NAV_ID}
+              className="lg:hidden"
+            />
           </div>
         </Container>
 
         <motion.div
-          className="absolute inset-x-0 bottom-0 h-px origin-left bg-teal-500/70"
+          className={cn(
+            "absolute inset-x-0 bottom-0 h-px origin-left bg-teal-500/70 transition-opacity duration-300",
+            mobileOpen && "opacity-0",
+          )}
           style={{ scaleX: progress }}
           aria-hidden
         />
       </header>
 
       <MobileNav
+        id={MOBILE_NAV_ID}
         open={mobileOpen}
-        onClose={() => setMobileOpen(false)}
+        onClose={closeMenu}
         pathname={pathname}
       />
     </>

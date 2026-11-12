@@ -20,9 +20,21 @@ import { cn } from "@/lib/utils";
 type HeroImageProps = {
   className?: string;
   priority?: boolean;
+  /**
+   * `object-position` class. Desktop is centre-weighted; the mobile crop is
+   * a narrow portrait slice and has to aim at the presenter instead.
+   */
+  focus?: string;
+  /** Defaults to full width. The blurred mobile backdrop needs far less. */
+  sizes?: string;
 };
 
-export function HeroImage({ className, priority }: HeroImageProps) {
+export function HeroImage({
+  className,
+  priority,
+  focus = "object-center",
+  sizes = "100vw",
+}: HeroImageProps) {
   const { backgroundImage, backgroundAlt } = heroContent;
 
   if (!backgroundImage) {
@@ -35,11 +47,81 @@ export function HeroImage({ className, priority }: HeroImageProps) {
       alt={backgroundAlt}
       fill
       priority={priority}
-      sizes="100vw"
-      // Centre-weighted: keeps the presenter and the screen in frame when a
-      // viewport is taller or wider than the source image.
-      className={cn("object-cover object-center", className)}
+      sizes={sizes}
+      // Centre-weighted by default: keeps the presenter and the screen in
+      // frame when a viewport is taller or wider than the source image.
+      className={cn("object-cover", focus, className)}
     />
+  );
+}
+
+// MOBILE hero backdrop — ambient, not literal.
+//
+// On desktop the photograph is the composition: the presenter's open hand
+// sits beside the headline, as if he were holding the words. A phone can't
+// keep that relationship — cropped to portrait, the hand and the headline
+// land in unrelated places and the person just competes with the copy.
+//
+// So below `lg` the same photo becomes atmosphere: heavily defocused and
+// darkened, so the ceiling downlights and the green screen dissolve into
+// soft bokeh — the brand's light and colour without a subject. A few slow
+// light "bubbles" drift over it (HeroBubbles). Copy sits on top, centred.
+// Same scroll zoom as desktop.
+export function HeroMobileBackdrop({ scale }: HeroBackdropProps) {
+  return (
+    <div className="absolute inset-0 -z-10 overflow-hidden bg-night lg:hidden" aria-hidden>
+      <motion.div
+        style={{ scale }}
+        className="absolute inset-0 origin-center will-change-transform"
+      >
+        <div className="hero-photo absolute inset-0">
+          {/* Overscaled so the blur's soft edge never shows at the frame. */}
+          {/* Kept near-NEUTRAL on purpose: the headline's accent word is the
+              logo green (#346A5C, mandatory), and green type on a green
+              ground disappears. A desaturated backdrop lets that green be
+              the only strong colour on screen. */}
+          <div className="absolute inset-0 scale-125 blur-[22px] brightness-[0.28] saturate-[0.6]">
+            <HeroImage priority focus="object-[74%_40%]" sizes="50vw" />
+          </div>
+        </div>
+      </motion.div>
+
+      <HeroBubbles />
+
+      {/* Even tint, then a top band for the nav and a floor for the copy. */}
+      <div className="absolute inset-0 bg-night/55" />
+      {/* Dark pool behind the headline: the logo green (#346A5C) is a deep
+          colour and only reads against near-black, so the ground directly
+          under the type is held darkest. */}
+      <div className="absolute inset-0 bg-[radial-gradient(75%_32%_at_50%_42%,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.35)_55%,transparent_100%)]" />
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent to-night/90" />
+    </div>
+  );
+}
+
+// Slow bokeh drift. Two kinds: large teal glows that carry colour, and small
+// soft discs that read as out-of-focus lights. Each floats on its own period
+// (19–31s, never in sync), transform-only. Off under reduced motion.
+// Client-requested for the mobile hero — RULES.md §5a records the exception.
+const BUBBLES = [
+  // Colour glows
+  "left-[-25%] top-[6%] h-72 w-72 bg-teal-700/30 blur-3xl [--dur:27s] [--fx:46px] [--fy:34px]",
+  "right-[-20%] top-[62%] h-64 w-64 bg-teal-700/25 blur-3xl [--dur:31s] [--fx:-40px] [--fy:-28px]",
+  // Bokeh discs
+  "left-[12%] top-[22%] h-20 w-20 bg-paper/[0.10] blur-[2px] ring-1 ring-paper/15 [--dur:19s] [--fx:18px] [--fy:-26px]",
+  "right-[14%] top-[12%] h-12 w-12 bg-teal-300/[0.18] blur-[1px] ring-1 ring-teal-200/25 [--dur:23s] [--fx:-14px] [--fy:22px]",
+  "right-[30%] top-[36%] h-28 w-28 bg-paper/[0.07] blur-[4px] ring-1 ring-paper/10 [--dur:29s] [--fx:24px] [--fy:30px]",
+  "left-[6%] top-[52%] h-10 w-10 bg-paper/[0.12] blur-[1px] [--dur:21s] [--fx:20px] [--fy:-18px]",
+] as const;
+
+function HeroBubbles() {
+  return (
+    <div className="hero-fade absolute inset-0 [--at:200ms]">
+      {BUBBLES.map((bubble) => (
+        <span key={bubble} className={cn("hero-bubble absolute rounded-full", bubble)} />
+      ))}
+    </div>
   );
 }
 
@@ -64,7 +146,10 @@ export function HeroBackdrop({ scale }: HeroBackdropProps) {
             extreme left and right. Any inset here (even vertical) changes
             the container aspect and crops the sides back off. The scroll
             zoom below is the only transform, and it starts at exactly 1. */}
-        <div className="absolute inset-0">
+        {/* `hero-photo`: first-load settle (globals.css). On this inner
+            layer, not the motion.div above — that one owns the scroll zoom,
+            and two systems writing one `transform` would fight. */}
+        <div className="hero-photo absolute inset-0">
           <HeroImage priority />
         </div>
       </motion.div>

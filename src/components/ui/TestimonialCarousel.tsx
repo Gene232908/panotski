@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Pause, Play, Quote, X } from "lucide-react";
-import { BrandText } from "@/components/ui/BrandMark";
+import { ArrowLeft, ArrowRight, Pause, Play, X } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { PortraitReveal } from "@/components/ui/PortraitReveal";
-import { VideoPlaceholder } from "@/components/ui/VideoPlaceholder";
+import { QuoteView, VideoView } from "@/components/ui/TestimonialViews";
 import { cn } from "@/lib/utils";
 import { testimonialsContent, type Testimonial } from "@/content/home";
 
@@ -29,8 +28,10 @@ import { testimonialsContent, type Testimonial } from "@/content/home";
 //
 // The card overlaps the portrait by design: the two planes are what make the
 // composition read as editorial rather than as a boxed widget. Below `lg` the
-// overlap is dropped and the card sits under the portrait, because at that
-// width an overlap only eats into the quote.
+// big portrait is dropped entirely: stacked above the card it cost ~460px of
+// a phone screen per reference, so the band ran to almost two screens. Phones
+// get a small avatar inside the card's byline instead (QuoteView), and can
+// swipe the card left / right to move between references.
 //
 // VIDEO: the clip plays INSIDE the card — the quote view is replaced in place,
 // never a lightbox or a new page. The card is the frame either way, so the
@@ -105,6 +106,7 @@ export function TestimonialCarousel({
   const [inView, setInView] = useState(false);
   const [tabVisible, setTabVisible] = useState(true);
   const rootRef = useRef<HTMLDivElement>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const reduceMotion = useReducedMotion();
 
   const count = testimonials.length;
@@ -221,13 +223,31 @@ export function TestimonialCarousel({
           setEngaged(false);
         }
       }}
+      // Touch swipe between references. Only a clearly horizontal gesture
+      // counts (|dx| > 48px and wider than it is tall), so a vertical page
+      // scroll that starts on the card never flips the quote. Ignored while
+      // the video is open — the player owns its own gestures.
+      onTouchStart={(event) => {
+        const touch = event.touches[0];
+        touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
+      }}
+      onTouchEnd={(event) => {
+        const start = touchStart.current;
+        const touch = event.changedTouches[0];
+        touchStart.current = null;
+        if (!start || !touch || showingVideo || count < 2) return;
+        const dx = touch.clientX - start.x;
+        const dy = touch.clientY - start.y;
+        if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+        goTo(dx < 0 ? index + 1 : index - 1);
+      }}
     >
-      <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-0">
+      <div className="grid items-center lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]">
         {/* Portrait. Mouse events, not pointer: `pointerenter` fires on a
             touch tap and then never leaves, which would strand autoplay off
             after one tap. */}
         <div
-          className="relative mx-auto w-full max-w-sm lg:mx-0 lg:max-w-none"
+          className="relative hidden lg:block"
           onMouseEnter={() => setEngaged(true)}
           onMouseLeave={() => setEngaged(false)}
         >
@@ -260,7 +280,7 @@ export function TestimonialCarousel({
           <motion.div
             layout
             transition={{ duration: reduceMotion ? 0 : 0.32, ease: EASE }}
-            className="overflow-hidden rounded-2xl border border-ink/[0.06] bg-surface p-8 shadow-lift sm:p-10 lg:p-12"
+            className="overflow-hidden rounded-2xl border border-ink/[0.06] bg-surface p-6 shadow-lift sm:p-10 lg:p-12"
           >
             {/* aria-live, not a focus jump: the content replaces itself in
                 place, so a screen reader hears the new state without being
@@ -288,7 +308,7 @@ export function TestimonialCarousel({
               inside is only ever the quote or the player. Hidden entirely for
               anyone with no clip (`hasVideo: false`). */}
           {active.hasVideo ? (
-            <div className="mt-5 flex justify-center lg:justify-start">
+            <div className="mt-4 flex justify-center sm:mt-5 lg:justify-start">
               <button
                 type="button"
                 onClick={() => setMode(showingVideo ? "quote" : "video")}
@@ -316,7 +336,7 @@ export function TestimonialCarousel({
         </div>
       </div>
 
-      <div className="mt-10 flex items-center justify-center gap-5 lg:mt-12 lg:justify-end lg:pr-2">
+      <div className="mt-6 flex items-center justify-between gap-5 sm:mt-10 sm:justify-center lg:mt-12 lg:justify-end lg:pr-2">
         <p className="text-xs font-semibold tabular-nums tracking-[0.18em] text-graphite-muted">
           {String(index + 1).padStart(2, "0")}
           <span className="text-ink/25"> / </span>
@@ -393,80 +413,6 @@ export function TestimonialCarousel({
           </CarouselButton>
         </div>
       </div>
-    </div>
-  );
-}
-
-function QuoteView({ testimonial }: { testimonial: Testimonial }) {
-  return (
-    <>
-      <Quote className="h-7 w-7 text-teal-700" strokeWidth={1.5} aria-hidden />
-
-      {/* RULES.md §4: a large statement is size + `font-light` + tight
-          tracking. Never italic — the italic pull-quote is the template tell
-          the client named. */}
-      <p className="balance mt-6 text-xl font-light leading-[1.5] tracking-[-0.02em] text-ink sm:text-2xl sm:leading-[1.45]">
-        <BrandText text={testimonial.quote} />
-      </p>
-
-      <footer className="mt-8 border-t border-ink/10 pt-6">
-        <p className="text-base font-semibold tracking-tight text-ink">
-          {testimonial.name}
-        </p>
-        <p className="mt-1 text-sm leading-relaxed text-graphite-muted">
-          {testimonial.title}
-        </p>
-        <p className="mt-4 inline-flex rounded-full bg-teal-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-800">
-          {testimonial.engagement}
-        </p>
-      </footer>
-    </>
-  );
-}
-
-// The card's video state. Same padding, same card — only the contents change,
-// so the player is framed exactly where the quote was.
-function VideoView({
-  testimonial,
-  onClose,
-}: {
-  testimonial: Testimonial;
-  onClose: () => void;
-}) {
-  return (
-    <div>
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-base font-semibold tracking-tight text-ink">
-            {testimonial.name}
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-graphite-muted">
-            {testimonial.title}
-          </p>
-        </div>
-
-        {/* A second way out, at the corner people reach for first. The button
-            under the card does the same thing. */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={testimonialsContent.closeVideoLabel}
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/10 bg-surface text-ink transition-all duration-300 ease-premium hover:border-teal-700 hover:bg-teal-700 hover:text-paper active:scale-[0.97]"
-        >
-          <X className="h-4 w-4" aria-hidden strokeWidth={1.75} />
-        </button>
-      </div>
-
-      <VideoPlaceholder
-        src={testimonial.video}
-        poster={testimonial.videoPoster}
-        hint={testimonial.videoHint}
-        label={`Video testimonial from ${testimonial.name}`}
-      />
-
-      <p className="mt-6 inline-flex rounded-full bg-teal-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-800">
-        {testimonial.engagement}
-      </p>
     </div>
   );
 }

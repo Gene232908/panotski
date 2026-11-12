@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 // Blur-in on every page entry.
 //
@@ -24,14 +26,26 @@ import { usePathname } from "next/navigation";
 //    navigation read as the page changing rather than the whole window
 //    flashing.
 //
+// EXCEPTION — landing directly on the home page. The hero has its own
+// first-load sequence (photo settle, headline wipe — see `.hero-*` in
+// globals.css). Blurring the whole page in on top of it doubled the entrance
+// and smeared the photo for the first half-second. So the very first render
+// on "/" skips the page blur; navigating to Home later still gets it.
+//
 // `prefers-reduced-motion` collapses the animation through the global rule in
 // globals.css, leaving an instant, fully visible page.
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const firstRender = useRef(true);
+  const skipEntry = firstRender.current && pathname === "/";
+
+  useEffect(() => {
+    firstRender.current = false;
+  }, []);
 
   return (
-    <div key={pathname} className="page-enter">
+    <div key={pathname} className={cn(!skipEntry && "page-enter")}>
       {children}
     </div>
   );

@@ -8,6 +8,9 @@ const config: Config = {
         // Brand core — #000000 / #f5f5f6 / #346A5C
         ink: "#000000",
         paper: "#f5f5f6",
+        // The home hero's base fill — a green-black the photograph dissolves
+        // into on mobile, so the fade has to land on exactly this value.
+        night: "#07100d",
         // Reading tones. Pure #000 on #fff vibrates at paragraph sizes, so
         // body copy uses these lifted neutrals instead — same brand family,
         // far calmer over a long page. Headlines still use `ink`.

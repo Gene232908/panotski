@@ -25,7 +25,10 @@ export function Section({ children, tone = "white", className, id }: SectionProp
     <section
       id={id}
       className={cn(
-        "relative scroll-mt-24 py-24 transition-colors duration-500 sm:py-32",
+        // 64px on phones: at 96px top + bottom, every band spent nearly a
+        // quarter of a phone screen on padding alone, and the home page ran
+        // past twelve screens. Desktop rhythm is unchanged.
+        "relative scroll-mt-24 py-16 transition-colors duration-500 sm:py-24 lg:py-32",
         toneClasses[tone],
         className,
       )}

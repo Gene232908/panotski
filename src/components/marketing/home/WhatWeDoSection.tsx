@@ -15,13 +15,11 @@ export function WhatWeDoSection() {
         </Reveal>
 
         {/* Plan §4.1/§13: four columns on desktop (12 services = three complete
-            rows), two on tablet, one on mobile.
+            rows), two on tablet, one stacked column of full cards on phones.
             `auto-rows-fr` gives every row the same height and the tiles carry
             `h-full`, so all twelve cards match regardless of whether a service
-            name wraps to one line or two. Without it each card is only as tall
-            as its own title, which is most obvious at the two-column widths
-            where long and short names sit side by side. */}
-        <div className="mt-12 grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            name wraps to one line or two. */}
+        <div className="mt-8 grid auto-rows-fr gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
           {homeServices.map((service, index) => (
             <Reveal
               key={service.slug}

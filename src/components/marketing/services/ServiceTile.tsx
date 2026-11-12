@@ -22,8 +22,16 @@ type ServiceTileProps = {
   service: Service;
 };
 
+// One card at every size: photo on top, name and arrow below. On phones the
+// cards stack one per row (client decision — a normal downward scroll, no
+// sideways rail and no compact list); the grid in WhatWeDoSection decides the
+// column count.
 const SHELL =
-  "group flex h-full flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface text-left transition-all duration-500 ease-premium hover:-translate-y-1.5 hover:border-teal-200 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0";
+  // `w-full`: the Creative Arts tile is a <button>, which sizes to its
+  // content rather than stretching like a link block — without it that card
+  // rendered narrower than the other eleven on mobile. `relative` keeps its
+  // `sr-only` label positioned inside the card.
+  "group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface text-left transition-all duration-500 ease-premium hover:-translate-y-1.5 hover:border-teal-200 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0";
 
 function TileBody({ service }: ServiceTileProps) {
   return (
@@ -33,7 +41,7 @@ function TileBody({ service }: ServiceTileProps) {
         ratio="landscape"
         className="rounded-none border-0 border-b border-ink/10"
       />
-      <div className="flex flex-1 items-start justify-between gap-4 p-6">
+      <div className="flex flex-1 items-start justify-between gap-4 p-5 sm:p-6">
         <h3 className="text-[15px] font-semibold leading-snug tracking-[-0.01em] text-ink">
           {service.name}
         </h3>

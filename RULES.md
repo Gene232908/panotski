@@ -217,6 +217,24 @@ anything to it, re-read this:
 - **Press state** is `active:scale-[0.97]`, matching the system-wide
   Apple convention. No bounce, no spring.
 
+**Mobile hero** (below `lg`) — the desktop composition depends on the
+presenter's hand "holding" the headline, which a portrait crop cannot keep.
+So phones get their own layout (all in `HeroBackdrop.tsx` / `HeroSection.tsx`):
+- **Backdrop** (`HeroMobileBackdrop`): the same photo, heavily blurred,
+  darkened and kept near-NEUTRAL (desaturated, with a dark pool behind the
+  headline). The accent word "reality" must stay the logo green #346A5C
+  (`teal-700`, brand-mandatory — never swap it for a lighter tint), and that
+  green only reads on a near-black, non-green ground. Bokeh with slow drifting light bubbles
+  (`HeroBubbles`). **Client-approved exception to the "no orbs/blobs" rule
+  below — mobile hero only.** Keep them slow (19s+), transform-only, off
+  under reduced motion; never on the desktop hero.
+- **Height and placement**: 88svh, copy **centred both vertically and horizontally**
+  (text and actions; the side rule beside the subtitle is desktop-only), so
+  the next band peeks in as a scroll cue. Desktop stays left-aligned. Headline scales with width (`12.5vw`) below `lg`.
+- **Actions**: compact 44px pill (arrow in a small disc) + text link on one
+  row — not a full-width bar.
+- **Service ticker** (`HeroMetaBar`) shows at every width.
+
 **Hero motion** is two scroll/pointer systems, both in `HeroSection.tsx`:
 
 | System            | What moves                                    | Why |
@@ -252,6 +270,16 @@ across the top.
   initial visually distinct.
 - Keyboard focus triggers the same spotlight as hover (`onFocus`), so the
   nav reads identically for keyboard users.
+**Mobile menu.** One `MenuToggle` button morphs burger ↔ X in place and
+stays in the header, which sits *above* the overlay (header z-50, overlay
+z-40) — never add a second close button inside the overlay. The overlay
+opens as a circular wipe from the toggle and closes on link tap, route
+change, or Escape. The links are set as giant drop caps
+(`CashNavLabel variant="dropcap"`) so the initials stack into C·A·S·H down
+the screen — the menu IS the C.A.S.H. concept. Don't regress it to the
+template pattern (numbered rows, dividers, an arrow per line); the client
+rejected that as generic.
+
 ## 5c. Services layout
 
 Each service is its own full-width band alternating ink/white, with the

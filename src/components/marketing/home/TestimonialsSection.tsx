@@ -27,11 +27,11 @@ export function TestimonialsSection() {
             as="h2"
             text={testimonialsContent.heading}
             accentWords={[...testimonialsContent.headingAccent]}
-            className="mt-8 text-3xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-4xl lg:text-[2.75rem]"
+            className="mt-6 text-3xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-4xl lg:text-[2.75rem]"
           />
         </div>
 
-        <Reveal delay={0.12} scale className="mt-14 lg:mt-16">
+        <Reveal delay={0.12} scale className="mt-8 sm:mt-14 lg:mt-16">
           <TestimonialCarousel testimonials={testimonialsContent.testimonials} />
         </Reveal>
       </Container>

@@ -27,6 +27,7 @@
     text-wrap: balance;
   }
 
+
   /* Needs the -webkit- prefix too — without it Chrome ignores the mask and
      the marquee runs straight into the labels either side of it. */
   .mask-fade-x {
@@ -136,6 +137,112 @@
 
 .page-enter {
   animation: pageEnter 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Home hero: first-load sequence ───────────────────────────────────────
+   Pure CSS ON PURPOSE. This used to be framer-motion `initial`/`animate`,
+   which server-renders the hidden state and only starts moving once React
+   has hydrated. On a phone that left the hero's bottom half empty for the
+   better part of a second, and the CTA did not land until ~3s. CSS starts
+   on the first painted frame, with or without JavaScript.
+
+   Every class uses `backwards` fill only: the start keyframe holds during the
+   delay, and once the animation ends the element drops back to its own
+   styles (which equal the end keyframe). Nothing is left holding a
+   transform or filter — that matters, a lingering filter/transform would
+   become the containing block for fixed descendants (see PageTransition).
+
+   Timeline (ms):  photo 0 ─ eyebrow 120 ─ headline 220 / 340 ─ accent 820
+                   rule 560 ─ subtitle 640 ─ actions 820 / 900 ─ ticker 950
+   Delays are set per element with Tailwind arbitrary values: [--at:220ms]. */
+
+@keyframes heroPhoto {
+  from { opacity: 0; transform: scale(1.06); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes heroClip {
+  from { clip-path: inset(0 100% -0.2em 0); }
+  to   { clip-path: inset(0 0 -0.2em 0); }
+}
+@keyframes heroDrift {
+  from { transform: translate3d(-3%, 0, 0); }
+  to   { transform: none; }
+}
+@keyframes heroSlide {
+  from { opacity: 0; transform: translate3d(-12px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes heroRise {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes heroDraw {
+  from { transform: scaleY(0); }
+  to   { transform: none; }
+}
+@keyframes heroFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* The accent word is wiped in white with its line, then settles into teal —
+   the last beat of the headline, so it is the word the eye ends on. */
+@keyframes heroAccent {
+  from { color: theme("colors.paper"); }
+}
+
+/* Photo: a slow settle from slightly close, out of the dark base. It is the
+   longest beat, so the copy arrives while the frame is still easing. */
+.hero-photo {
+  animation: heroPhoto 1.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.hero-wipe {
+  animation:
+    heroClip 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--at, 0s) backwards,
+    heroDrift 1.25s cubic-bezier(0.16, 1, 0.3, 1) var(--at, 0s) backwards;
+}
+.hero-slide {
+  animation: heroSlide 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--at, 0s) backwards;
+}
+.hero-rise {
+  animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--at, 0s) backwards;
+}
+.hero-draw {
+  transform-origin: top;
+  animation: heroDraw 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--at, 0s) backwards;
+}
+.hero-fade {
+  animation: heroFade 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--at, 0s) backwards;
+}
+.hero-accent {
+  animation: heroAccent 0.7s ease-out var(--at, 0s) backwards;
+}
+
+/* Mobile hero bokeh: each bubble drifts out and back on its own period and
+   offset (set per bubble as --dur / --fx / --fy), so they never move in
+   step. Ambient only — slow enough that nothing reads as "animating". */
+@keyframes heroFloat {
+  0%,
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(var(--fx, 20px), var(--fy, 20px), 0) scale(1.08); }
+}
+.hero-bubble {
+  animation: heroFloat var(--dur, 24s) ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The global rule shortens durations but NOT delays — with a backwards
+     fill, the copy would sit invisible through each delay. Off entirely. */
+  .hero-bubble,
+  .hero-photo,
+  .hero-wipe,
+  .hero-slide,
+  .hero-rise,
+  .hero-draw,
+  .hero-fade,
+  .hero-accent {
+    animation: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

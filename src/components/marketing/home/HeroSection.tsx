@@ -10,7 +10,10 @@ import {
   useTransform,
 } from "framer-motion";
 import { ArrowRight, ChevronRight } from "lucide-react";
-import { HeroBackdrop } from "@/components/marketing/home/HeroBackdrop";
+import {
+  HeroBackdrop,
+  HeroMobileBackdrop,
+} from "@/components/marketing/home/HeroBackdrop";
 import { HeroHeadline } from "@/components/marketing/home/HeroHeadline";
 import { HeroMetaBar } from "@/components/marketing/home/HeroMetaBar";
 import { BrandMark, BrandText } from "@/components/ui/BrandMark";
@@ -24,9 +27,10 @@ import { brand } from "@/content/site";
 // depth. Pointer-drift parallax was removed — it needs an overscanned
 // image, which crops the sides of this photograph.
 //
-// Layout: desktop overlays the copy on a full-bleed photograph. Mobile
-// drops the photo entirely and shows text only over the dark base fill,
-// since there's no room to show it uncropped on a portrait viewport.
+// Layout: desktop overlays the copy on a full-bleed photograph — the
+// presenter's hand "holds" the headline. That relationship can't survive a
+// portrait crop, so mobile (HeroMobileBackdrop) turns the same photo into
+// blurred bokeh atmosphere with slow light bubbles, and centres the copy.
 //
 // Deliberately absent (see RULES.md § 5a): orbs, glass cards, device
 // mockups, grid overlays, shimmer sweeps, floating stat chips.
@@ -75,8 +79,6 @@ import { brand } from "@/content/site";
 //     npm run dev
 // ─────────────────────────────────────────────────────────────────────────
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-
 export function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
@@ -105,8 +107,14 @@ export function HeroSection() {
       // Copy is TOP-weighted on desktop, not bottom-anchored: the approved
       // composition sits the headline in the upper-left so the speaker's
       // gesture reads across toward it, with open frame beneath.
-      className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden bg-[#07100d] text-paper lg:h-[min(100svh,56.25vw)] lg:min-h-[600px] lg:justify-start"
+      // Mobile: 88svh, not a full screen, with the copy and actions centred
+      // vertically between the nav and the service
+      // ticker. The next band's top edge peeks in below as a scroll cue.
+      className="relative isolate flex min-h-[88svh] flex-col justify-center overflow-hidden bg-night text-paper lg:h-[min(100svh,56.25vw)] lg:min-h-[600px] lg:justify-start"
     >
+      {/* Mobile / tablet: the photo as blurred bokeh atmosphere. */}
+      <HeroMobileBackdrop scale={shouldReduceMotion ? staticScale : bgScale} />
+
       {/* Desktop: full-bleed photograph behind the copy. */}
       <div className="hidden lg:block">
         <HeroBackdrop scale={shouldReduceMotion ? staticScale : bgScale} />
@@ -133,28 +141,33 @@ export function HeroSection() {
         // the original composition exactly; shorter ones give up top padding
         // instead of overlapping. 33rem = the copy column plus the ticker plus
         // a small gap. The 2rem floor keeps it sane on a very short window.
-        className="relative z-10 w-full pb-24 pt-10 sm:pb-28 lg:pb-24 lg:pt-[clamp(2rem,calc(min(100svh,56.25vw)-33rem),21.5rem)]"
+        // Mobile has no meta ticker (it is lg-only), so the bottom padding
+        // only needs to clear the home indicator, not a 3.5rem strip.
+        className="relative z-10 w-full pb-24 pt-28 sm:pb-28 lg:pb-24 lg:pt-[clamp(2rem,calc(min(100svh,56.25vw)-33rem),21.5rem)]"
       >
         {/* Wider than the standard page container — the banner is meant to
             fill the frame, so it runs to 1680px with generous gutters rather
             than being pinned to the 1320px content column. */}
         <div className="mx-auto w-full max-w-[1680px] px-6 sm:px-10 lg:px-6">
-          <div className="max-w-[62rem]">
+          {/* Centred on phones/tablet (no subject in the frame to keep clear
+              of); left-aligned from `lg`, where the presenter's hand reads
+              across toward the headline. */}
+          <div className="mx-auto max-w-[62rem] text-center lg:mx-0 lg:text-left">
             {/* The eyebrow drifts in from the left rather than up from below,
                 so it sets the same left-to-right direction the headline wipe
                 then follows. The whole entrance reads as one gesture. */}
-            <motion.p
-              initial={{ opacity: 0, x: shouldReduceMotion ? 0 : -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.08, duration: 0.85, ease: EASE }}
+            {/* Entrance timing for everything below lives in globals.css
+                (".hero-*"): CSS, so it plays from the first painted frame
+                instead of waiting for hydration. */}
+            <p
               // Sentence case, not uppercase — matches the approved hero
               // composition, where the eyebrow reads as a signature line
               // rather than a label.
               // White by default — only the CRES inside <BrandMark> is green.
-              className="text-[13px] font-bold tracking-[0.02em] text-paper"
+              className="hero-slide text-[13px] font-bold tracking-[0.02em] text-paper [--at:120ms]"
             >
               <BrandMark tone="dark" variant="inline" /> — {brand.tagline}
-            </motion.p>
+            </p>
 
             <HeroHeadline />
 
@@ -166,83 +179,57 @@ export function HeroSection() {
                   the sentence arrives — a border cannot be animated. That beat
                   is what stops the supporting copy from simply fading in
                   alongside everything else. */}
-              <div className="relative max-w-[26.5rem] pl-5">
-                <motion.span
+              <div className="relative mx-auto max-w-[26.5rem] lg:mx-0 lg:pl-5">
+                <span
                   aria-hidden
-                  className="absolute left-0 top-0 h-full w-px origin-top bg-teal-700/40"
-                  initial={{ scaleY: shouldReduceMotion ? 1 : 0 }}
-                  animate={{ scaleY: 1 }}
-                  transition={{ delay: 0.86, duration: 0.75, ease: EASE }}
+                  // Desktop only — a side rule beside centred text reads as a stray line.
+                  className="hero-draw absolute left-0 top-0 hidden h-full w-px bg-teal-700/40 [--at:560ms] lg:block"
                 />
-                <motion.p
-                  initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.0, duration: 0.9, ease: EASE }}
+                <p
                   // Narrow measure on purpose: the approved composition breaks
                   // this into three short lines beside the speaker, not two
                   // long ones running under him.
-                  className="text-[17px] leading-[1.65] text-paper/75 sm:text-lg"
+                  className="hero-rise text-[17px] leading-[1.65] text-paper/75 sm:text-lg [--at:640ms]"
                 >
                   {/* Runs through BrandText so the CREServices in this sentence
                       carries the same green/white split as every other wordmark
                       (plan §12). The hero band is dark, so no chip is needed —
                       the band is already the dark ground. */}
                   <BrandText text={heroContent.subtitle} tone="dark" />
-                </motion.p>
+                </p>
               </div>
 
               {/* The two actions arrive one after the other, not together —
                   a short stagger closes the sequence instead of ending it on
                   a block that pops in. */}
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: {},
-                  visible: {
-                    transition: {
-                      delayChildren: 1.18,
-                      staggerChildren: shouldReduceMotion ? 0 : 0.09,
-                    },
-                  },
-                }}
-                className="flex shrink-0 flex-wrap items-center gap-x-7 gap-y-4"
+              <div
+                // Compact pill + text link on one row at every size. A full-width
+                // 56px bar on phones read as an app control rather than a
+                // consultancy's call to action; 44px still clears the touch
+                // target minimum. Wraps under the pill on very narrow screens.
+                className="flex shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-4 sm:gap-x-7 lg:justify-start"
               >
-                <motion.span
-                  variants={{
-                    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 12 },
-                    visible: {
-                      opacity: 1,
-                      y: 0,
-                      transition: { duration: 0.8, ease: EASE },
-                    },
-                  }}
-                >
+                <span className="hero-rise [--at:820ms]">
                   <Link
                     href={heroContent.primaryCta.href}
-                    className="group inline-flex items-center gap-2 rounded-full bg-teal-700 px-7 py-3.5 text-[15px] font-medium text-paper transition-all duration-500 ease-premium hover:bg-teal-600 active:scale-[0.97]"
+                    className="group inline-flex items-center gap-2.5 rounded-full bg-teal-700 py-2 pl-5 pr-2 text-[14px] font-medium sm:gap-2 sm:px-7 sm:py-3.5 sm:text-[15px] text-paper transition-all duration-500 ease-premium hover:bg-teal-600 active:scale-[0.97]"
                   >
                     {heroContent.primaryCta.label}
-                    <ArrowRight
-                      className="h-4 w-4 transition-transform duration-500 ease-premium group-hover:translate-x-0.5"
-                      aria-hidden
-                    />
+                    {/* Phones: the arrow sits in its own small disc — the
+                        compact-pill pattern. sm+: the plain arrow as before. */}
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-paper/15 sm:h-auto sm:w-auto sm:bg-transparent">
+                      <ArrowRight
+                        className="h-3.5 w-3.5 transition-transform duration-500 ease-premium group-hover:translate-x-0.5 sm:h-4 sm:w-4"
+                        aria-hidden
+                      />
+                    </span>
                   </Link>
-                </motion.span>
+                </span>
 
-                <motion.span
-                  variants={{
-                    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 12 },
-                    visible: {
-                      opacity: 1,
-                      y: 0,
-                      transition: { duration: 0.8, ease: EASE },
-                    },
-                  }}
-                >
+                <span className="hero-rise [--at:900ms]">
                   <Link
                     href={heroContent.secondaryCta.href}
-                    className="group inline-flex items-center gap-1.5 text-[15px] font-medium text-paper/85 transition-colors duration-300 hover:text-paper"
+                    className="group inline-flex items-center gap-1.5 text-[14px] font-medium text-paper/85 sm:text-[15px] transition-colors duration-300 hover:text-paper"
                   >
                     <span className="relative">
                       {heroContent.secondaryCta.label}
@@ -256,8 +243,8 @@ export function HeroSection() {
                       aria-hidden
                     />
                   </Link>
-                </motion.span>
-              </motion.div>
+                </span>
+              </div>
             </div>
           </div>
         </div>

@@ -19,7 +19,13 @@ import { homeCtaContent } from "@/content/home";
 // keep the layout box reserved while the chunk loads.
 const Logo3D = dynamic(
   () => import("@/components/marketing/cta3d/Logo3D").then((m) => m.Logo3D),
-  { ssr: false, loading: () => <div className="aspect-square w-full" /> },
+  {
+    ssr: false,
+    // Same box as the canvas below, so the layout doesn't jump on load.
+    loading: () => (
+      <div className="mx-auto aspect-square w-full max-w-[230px] sm:max-w-[440px] lg:max-w-[520px]" />
+    ),
+  },
 );
 
 type CtaBandProps = {
@@ -47,7 +53,7 @@ export function CtaBand({
   return (
     <Section tone={tone} className="overflow-hidden">
       <Container className="relative">
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-center gap-6 sm:gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
             {/* Plan §9.3: a journey-oriented heading, not a second
                 "Book a Consultation" competing with the button below. */}
@@ -59,13 +65,13 @@ export function CtaBand({
               as="h2"
               text={headline}
               accentWords={accentWords}
-              className="mt-7 max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl"
+              className="mt-6 max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl"
             />
 
             <Reveal delay={0.2}>
               <Link
                 href={homeCtaContent.cta.href}
-                className="group mt-10 inline-flex items-center gap-2.5 rounded-full bg-ink px-9 py-[1.225rem] text-xs font-bold uppercase tracking-[0.16em] text-paper transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:bg-teal-700"
+                className="group mt-8 inline-flex sm:mt-10 items-center gap-2.5 rounded-full bg-ink px-9 py-[1.225rem] text-xs font-bold uppercase tracking-[0.16em] text-paper transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:bg-teal-700"
               >
                 {homeCtaContent.cta.label}
                 <ArrowRight
@@ -79,7 +85,7 @@ export function CtaBand({
           <Reveal delay={0.15} blur={0} className="order-1 lg:order-2">
             <Logo3D
               spin={logoSpin}
-              className="mx-auto aspect-square w-full max-w-[360px] sm:max-w-[440px] lg:max-w-[520px]"
+              className="mx-auto aspect-square w-full max-w-[230px] sm:max-w-[440px] lg:max-w-[520px]"
             />
           </Reveal>
         </div>
